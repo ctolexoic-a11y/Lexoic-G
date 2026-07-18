@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RBI Regulations Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-blue: #1e40af;
+      --primary-light: #3b82f6;
+      --primary-lighter: #93c5fd;
+      --primary-lightest: #dbeafe;
+      --bg-white: #ffffff;
+      --bg-offwhite: #f8fafc;
+      --bg-blue-tint: #eff6ff;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --border-light: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, var(--bg-offwhite) 0%, var(--bg-blue-tint) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* ==================== HEADER ==================== */
+    .header {
+      background: linear-gradient(135deg, var(--primary-blue) 0%, #2563eb 100%);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 24px;
+      color: white;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .header-content { position: relative; z-index: 1; }
+    .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .header p { opacity: 0.9; font-size: 15px; font-weight: 400; }
+
+    .header-stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item { display: flex; flex-direction: column; }
+    .stat-value { font-size: 32px; font-weight: 700; line-height: 1; }
+    .stat-label { font-size: 13px; opacity: 0.8; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ==================== CONTROLS ==================== */
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      min-width: 280px;
+      max-width: 400px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 12px 16px 12px 44px;
+      border: 2px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      background: var(--bg-white);
+      transition: all 0.2s;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .filter-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border-light);
+      background: var(--bg-white);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+      font-family: inherit;
+    }
+
+    .pill:hover { border-color: var(--primary-lighter); color: var(--primary-blue); }
+    .pill.active {
+      background: var(--primary-blue);
+      color: white;
+      border-color: var(--primary-blue);
+    }
+
+    .btn-primary {
+      padding: 10px 20px;
+      background: var(--primary-blue);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+
+    .btn-primary:hover { background: #1e3a8a; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .btn-danger {
+      padding: 10px 20px;
+      background: var(--error);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+    .btn-danger:hover { background: #dc2626; }
+
+    /* ==================== CARDS ==================== */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--bg-white);
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid var(--border-light);
+      transition: all 0.25s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--primary-light);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-lighter);
+      transform: translateY(-2px);
+    }
+
+    .card:hover::before { opacity: 1; }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-rss { background: var(--primary-lightest); color: var(--primary-blue); }
+    .badge-press { background: #ecfdf5; color: #059669; }
+    .badge-new { background: #fef3c7; color: #d97706; }
+
+    .card-date {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.5;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .card-link {
+      color: var(--primary-blue);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: gap 0.2s;
+    }
+
+    .card-link:hover { gap: 8px; }
+
+    .card-id {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'SF Mono', monospace;
+      background: var(--bg-offwhite);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* ==================== EMPTY STATE ==================== */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.3;
+    }
+
+    .empty-state h3 { color: var(--text-secondary); margin-bottom: 8px; font-size: 18px; }
+    .empty-state p { font-size: 14px; }
+
+    /* ==================== LOADING SKELETON ==================== */
+    @keyframes shimmer {
+      0% { background-position: -200px 0; }
+      100% { background-position: 200px 0; }
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-offwhite) 25%, #e2e8f0 50%, var(--bg-offwhite) 75%);
+      background-size: 200px 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+    }
+
+    .skeleton-card {
+      background: var(--bg-white);
+      border-radius: var(--radius);
+      padding: 20px;
+      border: 1px solid var(--border-light);
+    }
+
+    .skeleton-badge { width: 80px; height: 22px; border-radius: 6px; margin-bottom: 12px; }
+    .skeleton-title { width: 100%; height: 20px; border-radius: 4px; margin-bottom: 8px; }
+    .skeleton-title.short { width: 70%; }
+    .skeleton-desc { width: 100%; height: 14px; border-radius: 4px; margin-bottom: 6px; }
+    .skeleton-desc.short { width: 60%; margin-bottom: 14px; }
+    .skeleton-footer { width: 100%; height: 32px; border-radius: 4px; }
+
+    /* ==================== MODAL ==================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--bg-white);
+      border-radius: var(--radius);
+      max-width: 700px;
+      width: 100%;
+      max-height: 85vh;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+      transform: scale(0.95);
+      transition: transform 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-overlay.open .modal { transform: scale(1); }
+
+    .modal-header {
+      padding: 24px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-shrink: 0;
+    }
+
+    .modal-title { font-size: 20px; font-weight: 700; color: var(--text-primary); line-height: 1.4; padding-right: 20px; }
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 4px;
+      border-radius: 6px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .modal-close:hover { background: var(--bg-offwhite); color: var(--text-primary); }
+
+    .modal-body { padding: 16px 24px; overflow-y: auto; flex: 1; }
+    .modal-meta { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+    .meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
+    .modal-desc { font-size: 14px; line-height: 1.7; color: var(--text-primary); margin-bottom: 20px; }
+    .modal-raw {
+      background: var(--bg-offwhite);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      font-size: 12px;
+      font-family: 'SF Mono', 'Consolas', monospace;
+      color: var(--text-secondary);
+      overflow-x: auto;
+      border: 1px solid var(--border-light);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .modal-footer {
+      padding: 16px 24px 24px;
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      flex-shrink: 0;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .btn-secondary {
+      padding: 10px 20px;
+      background: var(--bg-offwhite);
+      color: var(--text-secondary);
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .btn-secondary:hover { background: var(--border-light); }
+
+    /* ==================== TOAST ==================== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--primary-blue);
+      color: white;
+      padding: 14px 20px;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 200;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { background: var(--error); }
+    .toast.success { background: var(--success); }
+    .toast.warning { background: var(--warning); }
+
+    /* ==================== SPINNER ==================== */
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .spinner { animation: spin 1s linear infinite; }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .header { padding: 24px; }
+      .header h1 { font-size: 22px; }
+      .header-stats { gap: 20px; }
+      .stat-value { font-size: 24px; }
+      .controls-bar { flex-direction: column; align-items: stretch; }
+      .search-box { max-width: 100%; min-width: auto; }
+      .modal { max-height: 95vh; }
+    }
+  </style>
+<base target="_blank">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-content">
+        <h1>🏛️ RBI Regulations Monitor</h1>
+        <p>Track Reserve Bank of India notifications and press releases in real-time</p>
+        <div class="header-stats">
+          <div class="stat-item">
+            <span class="stat-value" id="stat-total">—</span>
+            <span class="stat-label">Total Entries</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="stat-rss">—</span>
+            <span class="stat-label">RSS Feed</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="stat-press">—</span>
+            <span class="stat-label">Press Releases</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="stat-new">—</span>
+            <span class="stat-label">Last 24h</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-bar">
+      <div class="search-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="search-input" placeholder="Search regulations..." autocomplete="off" />
+      </div>
+      <div class="filter-pills">
+        <button class="pill active" data-filter="all">All</button>
+        <button class="pill" data-filter="RSS">RSS Feed</button>
+        <button class="pill" data-filter="PressRelease">Press Release</button>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-primary" id="refresh-btn">
+          <svg id="refresh-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+          <span id="refresh-text">Refresh Data</span>
+        </button>
+        <button class="btn-danger" id="scrape-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>
+          <span id="scrape-text">Run Scraper</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="cards-grid" id="cards-container">
+      <!-- Skeleton loaders -->
+      <div class="skeleton-card">
+        <div class="skeleton skeleton-badge"></div>
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-title short"></div>
+        <div class="skeleton skeleton-desc"></div>
+        <div class="skeleton skeleton-desc short"></div>
+        <div class="skeleton skeleton-footer"></div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton skeleton-badge"></div>
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-title short"></div>
+        <div class="skeleton skeleton-desc"></div>
+        <div class="skeleton skeleton-desc short"></div>
+        <div class="skeleton skeleton-footer"></div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skeleton skeleton-badge"></div>
+        <div class="skeleton skeleton-title"></div>
+        <div class="skeleton skeleton-title short"></div>
+        <div class="skeleton skeleton-desc"></div>
+        <div class="skeleton skeleton-desc short"></div>
+        <div class="skeleton skeleton-footer"></div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="empty-state" style="display: none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h.01M15 12h.01M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10z"/></svg>
+      <h3>No regulations found</h3>
+      <p>Try adjusting your search or filters, or run the scraper to fetch new data.</p>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title">Regulation Details</h2>
+        <button class="modal-close" id="modal-close" aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-meta" id="modal-meta"></div>
+        <div class="modal-desc" id="modal-desc"></div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Raw Data (JSON)</div>
+        <div class="modal-raw" id="modal-raw"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="modal-copy">📋 Copy JSON</button>
+        <a class="btn-primary" id="modal-external" href="#" target="_blank" rel="noopener" style="text-decoration: none;">Open Source ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    <span id="toast-msg">Action completed</span>
+  </div>
+
+  <script>
+    // ==================== CONFIG ====================
+    const API_BASE = window.location.origin; // Auto-detects the server URL
+    // If serving frontend separately, change this to your backend URL:
+    // const API_BASE = 'http://localhost:5000';
+
+    // ==================== STATE ====================
+    let allEntries = [];
+    let currentFilter = 'all';
+    let searchQuery = '';
+    let isLoading = false;
+
+    // ==================== HELPERS ====================
+    function formatDate(isoString) {
+      if (!isoString) return 'Unknown date';
+      try {
+        const d = new Date(isoString);
+        return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      } catch { return isoString; }
+    }
+
+    function timeAgo(isoString) {
+      if (!isoString) return '';
+      try {
+        const diff = Date.now() - new Date(isoString).getTime();
+        const hours = Math.floor(diff / 3600000);
+        if (hours < 1) return 'Just now';
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        return `${days}d ago`;
+      } catch { return ''; }
+    }
+
+    function getSourceLabel(source) {
+      return source === 'RSS' ? 'RSS Feed' : 'Press Release';
+    }
+
+    function getBadgeClass(source) {
+      return source === 'RSS' ? 'badge-rss' : 'badge-press';
+    }
+
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      const msgEl = document.getElementById('toast-msg');
+      msgEl.textContent = msg;
+      toast.className = 'toast show ' + type;
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    function setLoading(loading) {
+      isLoading = loading;
+      const btn = document.getElementById('refresh-btn');
+      const icon = document.getElementById('refresh-icon');
+      const text = document.getElementById('refresh-text');
+      btn.disabled = loading;
+      if (loading) {
+        icon.classList.add('spinner');
+        text.textContent = 'Loading...';
+      } else {
+        icon.classList.remove('spinner');
+        text.textContent = 'Refresh Data';
+      }
+    }
+
+    function setScrapeLoading(loading) {
+      const btn = document.getElementById('scrape-btn');
+      const text = document.getElementById('scrape-text');
+      btn.disabled = loading;
+      text.textContent = loading ? 'Scraping...' : 'Run Scraper';
+    }
+
+    // ==================== API CALLS ====================
+    async function fetchEntries() {
+      setLoading(true);
+      try {
+        const response = await fetch(`${API_BASE}/api/entries`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        allEntries = data.entries || [];
+        renderCards();
+        updateStats(data.stats || {});
+        return true;
+      } catch (err) {
+        console.error('Fetch error:', err);
+        showToast('Failed to load data: ' + err.message, 'error');
+        // Show empty state on error
+        document.getElementById('cards-container').innerHTML = '';
+        document.getElementById('empty-state').style.display = 'block';
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function triggerScrape() {
+      setScrapeLoading(true);
+      try {
+        const response = await fetch(`${API_BASE}/api/scrape`, { method: 'POST' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        showToast(`Scrape complete! ${data.new_entries || 0} new entries found.`, 'success');
+        await fetchEntries(); // Refresh the list
+        return true;
+      } catch (err) {
+        console.error('Scrape error:', err);
+        showToast('Scrape failed: ' + err.message, 'error');
+        return false;
+      } finally {
+        setScrapeLoading(false);
+      }
+    }
+
+    // ==================== RENDER ====================
+    function updateStats(stats) {
+      document.getElementById('stat-total').textContent = stats.total ?? allEntries.length;
+      document.getElementById('stat-rss').textContent = stats.rss ?? allEntries.filter(e => e.source === 'RSS').length;
+      document.getElementById('stat-press').textContent = stats.press ?? allEntries.filter(e => e.source === 'PressRelease').length;
+      const cutoff = Date.now() - 86400000;
+      document.getElementById('stat-new').textContent = stats.recent24h ?? allEntries.filter(e => new Date(e.published_date).getTime() > cutoff).length;
+    }
+
+    function renderCards() {
+      const container = document.getElementById('cards-container');
+      const emptyState = document.getElementById('empty-state');
+
+      let filtered = allEntries.filter(e => {
+        const matchesFilter = currentFilter === 'all' || e.source === currentFilter;
+        const matchesSearch = !searchQuery || 
+          (e.title && e.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (e.description && e.description.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesFilter && matchesSearch;
+      });
+
+      // Sort by published date descending
+      filtered.sort((a, b) => new Date(b.published_date || 0) - new Date(a.published_date || 0));
+
+      updateStats({});
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+      emptyState.style.display = 'none';
+
+      const cutoff = Date.now() - 86400000;
+
+      container.innerHTML = filtered.map(entry => {
+        const isNew = entry.published_date && new Date(entry.published_date).getTime() > cutoff;
+        const sourceIcon = entry.source === 'RSS'
+          ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6.503 20.752c0 1.794-1.456 3.248-3.251 3.248-1.796 0-3.252-1.454-3.252-3.248 0-1.794 1.456-3.248 3.252-3.248 1.795.001 3.251 1.454 3.251 3.248zm-6.503-12.572v4.811c6.05.062 10.96 4.966 11.022 11.009h4.817c-.062-8.71-7.118-15.758-15.839-15.82zm0-3.368c10.58.046 19.152 8.594 19.183 19.188h4.817c-.03-13.231-10.739-23.954-24-24v4.812z"/></svg>'
+          : '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+
+        return `
+          <div class="card" data-id="${entry.id || entry.source_id}">
+            <div class="card-header">
+              <span class="card-badge ${getBadgeClass(entry.source)}">
+                ${sourceIcon}
+                ${getSourceLabel(entry.source)}
+              </span>
+              <span class="card-date">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                ${timeAgo(entry.published_date)}
+              </span>
+            </div>
+            <div class="card-title">${entry.title || 'Untitled'}</div>
+            <div class="card-desc">${entry.description || 'No description available.'}</div>
+            <div class="card-footer">
+              <span class="card-id">${(entry.source_id || 'unknown').substring(0, 8)}</span>
+              <span class="card-link">View details →</span>
+            </div>
+            ${isNew ? '<span class="card-badge badge-new" style="position:absolute;top:16px;right:16px;">New</span>' : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Attach click handlers
+      document.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('click', () => {
+          const id = card.dataset.id;
+          const entry = allEntries.find(e => (e.id || e.source_id) === id);
+          if (entry) openModal(entry);
+        });
+      });
+    }
+
+    // ==================== MODAL ====================
+    function openModal(entry) {
+      document.getElementById('modal-title').textContent = entry.title || 'Untitled';
+      document.getElementById('modal-desc').textContent = entry.description || 'No description available.';
+      document.getElementById('modal-raw').textContent = JSON.stringify(entry, null, 2);
+
+      const link = entry.link || '#';
+      const externalBtn = document.getElementById('modal-external');
+      externalBtn.href = link;
+      externalBtn.style.display = link === '#' ? 'none' : 'flex';
+
+      const metaHtml = `
+        <div class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          ${formatDate(entry.published_date)}
+        </div>
+        <div class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 12 2.5 7.5"/></svg>
+          ${getSourceLabel(entry.source)}
+        </div>
+        <div class="meta-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          ID: ${entry.source_id || 'N/A'}
+        </div>
+      `;
+      document.getElementById('modal-meta').innerHTML = metaHtml;
+      document.getElementById('modal-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('modal-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      renderCards();
+    });
+
+    document.querySelectorAll('.pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        currentFilter = pill.dataset.filter;
+        renderCards();
+      });
+    });
+
+    document.getElementById('refresh-btn').addEventListener('click', fetchEntries);
+    document.getElementById('scrape-btn').addEventListener('click', triggerScrape);
+
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-overlay').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal-overlay')) closeModal();
+    });
+
+    document.getElementById('modal-copy').addEventListener('click', () => {
+      const raw = document.getElementById('modal-raw').textContent;
+      navigator.clipboard.writeText(raw).then(() => showToast('JSON copied to clipboard', 'success'));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // ==================== INIT ====================
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchEntries();
+    });
+  </script>
+</body>
+</html>
+
